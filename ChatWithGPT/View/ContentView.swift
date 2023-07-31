@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     
     @StateObject private var viewModel = ChatMessageViewModel()
+    private var gptURL: [String] = [String]()
     
     var body: some View {
         VStack {
@@ -44,6 +45,8 @@ struct ContentView: View {
                 } else {
                     Button("Send") {
                         sendMessages()
+                        sendLink(ChatMessageModel(owner: .bot, viewModel.message))
+                        
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -89,6 +92,47 @@ struct ContentView: View {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    func sendLink(_ message: ChatMessageModel) {
+        
+        var textToShred: String = message.text
+        
+        if message.owner == .bot {
+            if !message.text.isEmpty {
+                
+                let urlRegularExpression = Constants.urlRegularExpression
+
+                if let regex = try? NSRegularExpression(pattern: urlRegularExpression, options: []) {
+                    let textNSRange = NSRange(textToShred.startIndex..<textToShred.endIndex, in: textToShred)
+                    let matches = regex.matches(in: textToShred, options: [], range: textNSRange)
+
+                    var urlList: [String] = []
+
+                    for match in matches {
+                        if let range = Range(match.range, in: textToShred) {
+                            let url = String(textToShred[range])
+                            urlList.append(url)
+                        }
+                    }
+
+                    print(urlList)
+                }
+            }
+        }
+        
+        //let textToShred = "elbette, senin için bunu yapabilirim. İşte Alihan Samedov'dan Sen gelmez oldun müziği : https://www.example.com/alihansamedoc-sen-gelmez-oldun"
+
+        
+        
+        
+        /*
+        if message.owner == .bot {
+            if !message.text.isEmpty {
+                
+            }
+        }
+        */
     }
 }
 
